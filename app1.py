@@ -104,7 +104,7 @@ def get_ai_summary(model, reviews_list):
 # ==========================================
 st.title("🏹 VOC玩家声音智能分析系统")
 st.markdown("---")
-
+YOUR_GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 # 初始化 Gemini 模型
 gemini_model = init_gemini(YOUR_GEMINI_API_KEY)
 
