@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -127,387 +126,168 @@ else:
             
             score_filter = st.multiselect("⭐ 星级过滤 (Score):", options=[5, 4, 3, 2, 1], default=[5, 4, 3, 2, 1])
             available_versions = raw_df['reviewCreatedVersion'].dropna().unique().tolist()
-            version_filter
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # import streamlit as st
-# # import pandas as pd
-# # import matplotlib.pyplot as plt
-# # from wordcloud import WordCloud
-# # import re
-# # import json
-# # import google.generativeai as genai
-
-# # # ==========================================
-# # # 0. 页面全局配置
-# # # ==========================================
-# # st.set_page_config(page_title="Bubble Shooter VOC Dashboard", layout="wide")
-
-# # # 从 secrets 中安全读取 API Key，避免硬编码泄露
-# # try:
-# #     YOUR_GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-# # except FileNotFoundError:
-# #     st.error("未找到 .streamlit/secrets.toml 文件，请配置 API Key。")
-# #     st.stop()
-
-# # # ==========================================
-# # # 1. 功能函数层
-# # # ==========================================
-
-# # @st.cache_resource
-# # def init_gemini(api_key):
-# #     try:
-# #         genai.configure(api_key=api_key)
-# #         # 建议使用稳定版模型进行结构化输出
-# #         model = genai.GenerativeModel('gemini-2.5-flash')
-# #         return model
-# #     except Exception as e:
-# #         st.error(f"Gemini 初始化失败: {e}")
-# #         return None
-
-# # @st.cache_data
-# # def load_and_clean_data(file_obj):
-# #     try:
-# #         df = pd.read_csv(file_obj)
-# #         df['content'] = df['content'].fillna('')
-# #         df['at'] = pd.to_datetime(df['at'])
-# #         df['sentiment'] = df['score'].map({5: 'Positive', 4: 'Positive', 3: 'Neutral', 2: 'Negative', 1: 'Negative'})
-# #         return df
-# #     except Exception as e:
-# #         st.error(f"数据读取失败: {e}")
-# #         return None
-
-# # def generate_wordcloud(text, title):
-# #     if not text:
-# #         st.warning(f"{title} 没有足够的文本生成词云。")
-# #         return
-# #     stop_words = set(['the', 'and', 'to', 'i', 'a', 'it', 'is', 'of', 'this', 'you', 'for', 'in', 'that', 'game', 'but', 'my', 'play', 'so'])
-# #     clean_text = re.sub(r'[^a-z\s]', '', text.lower())
-# #     wordcloud = WordCloud(width=800, height=400, background_color='white', stopwords=stop_words, colormap='Dark2').generate(clean_text)
-# #     fig, ax = plt.subplots(figsize=(10, 5))
-# #     ax.imshow(wordcloud, interpolation='bilinear')
-# #     ax.axis('off')
-# #     ax.set_title(title, fontsize=20)
-# #     st.pyplot(fig)
-
-# # # 核心重构：强制 JSON 输出与容错解析
-# # @st.cache_data(show_spinner=False)
-# # def get_ai_summary_cached(reviews_list):
-# #     model = init_gemini(YOUR_GEMINI_API_KEY)
-# #     if not model or not reviews_list:
-# #         return None
-
-# #     text_to_analyze = "\n\n".join(reviews_list[:50]) # 取前50条避免超长
-    
-# #     # 结构化 Prompt 注入
-# #     prompt = f"""
-# #     You are an expert Game Data Analyst. Analyze these negative user reviews (1-2 stars) for 'Bubble Shooter'.
-# #     Output the result STRICTLY as a JSON array of objects. Do not use markdown blocks, do not add explanation text.
-# #     Each object must have the following keys exactly:
-# #     - "title": A short, punchy summary of the complaint in Chinese (e.g., "广告频率过高").
-# #     - "severity": Must be exactly one of "High", "Medium", or "Low".
-# #     - "example": One direct quote from the reviews supporting this in its original language.
-# #     - "action": A one-sentence actionable suggestion for the dev team in Chinese.
-
-# #     Reviews to analyze:
-# #     {text_to_analyze}
-# #     """
-    
-# #     try:
-# #         response = model.generate_content(prompt)
-# #         raw_text = response.text
-        
-# #         # 容错处理：清洗大模型可能附带的 Markdown 标记 (```json ... ```)
-# #         json_match = re.search(r'\[.*\]', raw_text, re.DOTALL)
-# #         if json_match:
-# #             clean_json_str = json_match.group(0)
-# #             return json.loads(clean_json_str)
-# #         else:
-# #             return None # 格式严重错误
-# #     except Exception as e:
-# #         return {"error": str(e)}
-
-# # # ==========================================
-# # # 2. 交互界面层 (金字塔结构)
-# # # ==========================================
-
-# # st.title("🎯 玩家声音智能决策看板 (VOC)")
-# # st.markdown("---")
-
-# # st.sidebar.header("📁 数据导入")
-# # uploaded_file = st.sidebar.file_uploader("上传爬取的 CSV 评论数据", type=["csv"])
-
-# # if uploaded_file is not None:
-# #     df = load_and_clean_data(uploaded_file)
-    
-# #     if df is not None:
-# #         # 【置顶】模块 1: AI 智能归因 (执行摘要)
-# #         st.header("🚨 核心痛点归因与行动建议")
-# #         negative_reviews = df[df['sentiment'] == 'Negative']['content'].tolist()
-        
-# #         with st.spinner("AI 正在深度解析负面反馈..."):
-# #             ai_insights = get_ai_summary_cached(negative_reviews)
+            version_filter = st.multiselect("📱 版本过滤 (Version):", options=available_versions, default=[])
+            search_kw = st.text_input("🔑 关键词检索:", placeholder="如 'crash' 或 'level'")
             
-# #             if not ai_insights:
-# #                 st.error("AI 总结生成失败，请检查数据或重试。")
-# #             elif isinstance(ai_insights, dict) and "error" in ai_insights:
-# #                 st.error(f"AI 调用异常: {ai_insights['error']}")
-# #             else:
-# #                 # 动态渲染 JSON 为告警卡片
-# #                 cols = st.columns(len(ai_insights))
-# #                 for idx, insight in enumerate(ai_insights[:3]): # 最多展示前3个核心痛点
-# #                     with cols[idx]:
-# #                         # 根据严重程度动态分配颜色主题
-# #                         if insight.get("severity") == "High":
-# #                             st.error(f"🔥 {insight.get('title', '未知痛点')}")
-# #                         elif insight.get("severity") == "Medium":
-# #                             st.warning(f"⚡ {insight.get('title', '未知痛点')}")
-# #                         else:
-# #                             st.info(f"💡 {insight.get('title', '未知痛点')}")
+            st.divider()
+            if YOUR_GEMINI_API_KEY:
+                st.success("🟢 AI 引擎已连接")
+            else:
+                st.warning("🔴 AI 引擎未配置")
+
+        # --- 全局数据过滤 ---
+        filtered_df = raw_df[raw_df['score'].isin(score_filter)]
+        if version_filter:
+            filtered_df = filtered_df[filtered_df['reviewCreatedVersion'].isin(version_filter)]
+        if search_kw:
+            filtered_df = filtered_df[filtered_df['content'].str.contains(search_kw, case=False, na=False)]
+
+        # 头部标题
+        st.markdown('<div class="report-header">📱 Bubble Shooter 智能体检仪表盘</div>', unsafe_allow_html=True)
+        st.caption(f"当前筛选条件下共匹配 **{len(filtered_df):,}** 条数据 | 分析区间: {filtered_df['date'].min()} 至 {filtered_df['date'].max()}")
+
+        # --- 核心空间折叠：Tabs ---
+        tab1, tab2, tab3 = st.tabs(["📊 大盘与业务归因", "🤖 AI 战略洞察", "🔍 原始 VOC 语义下钻"])
+
+        # ================= TAB 1: 大盘与归因 =================
+        with tab1:
+            if not filtered_df.empty:
+                # 1. 基础指标
+                avg_score = filtered_df['score'].mean()
+                avg_sentiment = filtered_df['nlp_sentiment_score'].mean()
+                pos_pct = (len(filtered_df[filtered_df['true_sentiment'] == 'Positive']) / len(filtered_df)) * 100
+                neg_pct = (len(filtered_df[filtered_df['true_sentiment'] == 'Negative']) / len(filtered_df)) * 100
+                
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("评价基数", f"{len(filtered_df):,}")
+                c2.metric("平均星级", f"{avg_score:.2f} ⭐")
+                c3.metric("NLP 情感均分", f"{avg_sentiment:.2f}", delta=">0为正向", delta_color="off")
+                c4.metric("负面情绪占比", f"{neg_pct:.1f}%", delta=f"正面 {pos_pct:.1f}%", delta_color="inverse")
+
+                # 2. 核心痛点归因矩阵 (Treemap)
+                st.markdown('<div class="section-title">🗺️ 中差评核心痛点归因矩阵 (1-3星)</div>', unsafe_allow_html=True)
+                pain_df = filtered_df[filtered_df['score'] <= 3]
+                if not pain_df.empty:
+                    tag_stats = pain_df.groupby('business_tag').size().reset_index(name='count')
+                    fig_tree = px.treemap(
+                        tag_stats, path=['business_tag'], values='count',
+                        color='count', color_continuous_scale='Reds',
+                        title="面积与颜色越深，代表该业务模块的负面反馈越集中"
+                    )
+                    fig_tree.update_layout(margin=dict(t=40, l=10, r=10, b=10))
+                    st.plotly_chart(fig_tree, use_container_width=True)
+                else:
+                    st.info("当前筛选条件下无足够的中差评数据生成热力图。")
+
+                # 3. 版本质量分布监测 (Boxplot)
+                st.markdown('<div class="section-title">📦 主流版本质量分布监测</div>', unsafe_allow_html=True)
+                version_counts = filtered_df['reviewCreatedVersion'].value_counts()
+                # 仅展示评论数大于5的版本，避免视觉杂乱
+                valid_versions = version_counts[version_counts > 5].index
+                box_df = filtered_df[filtered_df['reviewCreatedVersion'].isin(valid_versions)]
+                
+                if not box_df.empty:
+                    fig_box = px.box(
+                        box_df, x="reviewCreatedVersion", y="score", color="reviewCreatedVersion",
+                        title="箱体越长表示评分离散度越高（存在口碑分化），黑点代表异常极值",
+                        points="all"
+                    )
+                    st.plotly_chart(fig_box, use_container_width=True)
+                else:
+                    st.info("单版本数据量不足以绘制分布箱线图。")
+            else:
+                st.warning("当前筛选条件下无数据，请调整左侧侧边栏参数。")
+
+        # ================= TAB 2: AI 战略洞察 =================
+        with tab2:
+            st.markdown('<div class="section-title">🤖 高管汇报级战略建议 (云端缓存版)</div>', unsafe_allow_html=True)
+            
+            # 使用当前筛选数据的长度和最后一个时间戳作为缓存指纹
+            data_fingerprint = f"{len(filtered_df)}_{filtered_df['at'].max()}" if not filtered_df.empty else "empty"
+            
+            btn_c1, btn_c2 = st.columns([2, 8])
+            with btn_c1:
+                generate_clicked = st.button("⚡ 立即生成报告", type="primary", use_container_width=True)
+            with btn_c2:
+                if st.button("🗑️ 清除云端缓存"):
+                    st.cache_data.clear()
+                    st.rerun()
+                    
+            if "ai_report_display" not in st.session_state:
+                st.session_state.ai_report_display = None
+
+            if generate_clicked:
+                if not YOUR_GEMINI_API_KEY:
+                    st.error("未配置 API Key，无法呼叫 AI 大模型。")
+                elif filtered_df.empty:
+                    st.warning("当前无数据可供分析。")
+                else:
+                    with st.spinner('AI 正在交叉验证数据，生成高管级汇报纪要... (若数据源未变将秒读缓存)'):
+                        report_content = generate_cached_report(gemini_model, data_fingerprint, filtered_df)
                         
-# #                         st.markdown(f"**🗣️ 玩家原声:**\n> *\"{insight.get('example', '')}\"*")
-# #                         st.markdown(f"**🛠️ 建议动作:**\n{insight.get('action', '')}")
+                        if "出错" not in report_content and "429 Error" not in report_content:
+                            st.session_state.ai_report_display = report_content
+                            st.success("✅ 报告就绪！已部署至云端缓存。")
+                        else:
+                            st.error(report_content)
 
-# #         st.markdown("---")
+            if st.session_state.ai_report_display:
+                st.markdown(
+                    f"<div style='background-color: rgba(128, 128, 128, 0.05); padding: 30px; border-radius: 10px; border-left: 5px solid #1f77b4; box-shadow: 2px 2px 10px rgba(0,0,0,0.05);'>"
+                    f"{st.session_state.ai_report_display}"
+                    f"</div>", 
+                    unsafe_allow_html=True
+                )
+            else:
+                st.info("👆 点击上方按钮，基于当前左侧侧边栏筛选出的数据生成定制化诊断报告。")
 
-# #         # 【中间】模块 2: 宏观数据概览
-# #         st.header("📊 大盘健康度指标")
-# #         col1, col2, col3, col4 = st.columns(4)
-# #         avg_score = df['score'].mean()
-# #         neg_ratio = len(df[df['sentiment'] == 'Negative']) / len(df) * 100
-        
-# #         col1.metric("平均评分", f"{avg_score:.2f} / 5", f"{avg_score - 4.0:.2f} 距健康基线")
-# #         col2.metric("总评论样本", f"{len(df):,}")
-# #         col3.metric("负面评论占比", f"{neg_ratio:.1f}%")
-        
-# #         with col4:
-# #             st.bar_chart(df['score'].value_counts().sort_index(ascending=False), height=150)
+        # ================= TAB 3: 原始 VOC 下钻 =================
+        with tab3:
+            if not filtered_df.empty:
+                # 1. 词云图
+                st.markdown('<div class="section-title">👁️ 原始文本语义聚类 (词云)</div>', unsafe_allow_html=True)
+                c_neg, c_pos = st.columns(2)
+                
+                with c_neg:
+                    st.subheader("🔴 负面高频词")
+                    neg_words = " ".join(filtered_df[filtered_df['true_sentiment'] == 'Negative']['content'].tolist())
+                    if neg_words:
+                        wordcloud_neg = WordCloud(width=600, height=300, background_color='white', colormap='Reds').generate(re.sub(r'[^a-z\s]', '', neg_words.lower()))
+                        fig_n, ax_n = plt.subplots(figsize=(8, 4))
+                        ax_n.imshow(wordcloud_neg)
+                        ax_n.axis('off')
+                        st.pyplot(fig_n)
+                    else:
+                        st.info("暂无足够的负面评价生成词云")
 
-# #         st.markdown("---")
+                with c_pos:
+                    st.subheader("🟢 正面高频词")
+                    pos_words = " ".join(filtered_df[filtered_df['true_sentiment'] == 'Positive']['content'].tolist())
+                    if pos_words:
+                        wordcloud_pos = WordCloud(width=600, height=300, background_color='white', colormap='Greens').generate(re.sub(r'[^a-z\s]', '', pos_words.lower()))
+                        fig_p, ax_p = plt.subplots(figsize=(8, 4))
+                        ax_p.imshow(wordcloud_pos)
+                        ax_p.axis('off')
+                        st.pyplot(fig_p)
+                    else:
+                        st.info("暂无足够的正面评价生成词云")
 
-# #         # 【底部】模块 3: 数据下钻探索 (折叠处理，降低认知负担)
-# #         st.header("🔍 数据下钻验证")
-# #         with st.expander("展开查看高频词云与原始评论流", expanded=False):
-# #             tab1, tab2, tab3 = st.tabs(["🔴 负面词云", "🟢 正面词云", "📋 原始明细表"])
-            
-# #             with tab1:
-# #                 neg_text = " ".join(df[df['sentiment'] == 'Negative']['content'].tolist())
-# #                 generate_wordcloud(neg_text, "Negative Trigger Words")
-# #             with tab2:
-# #                 pos_text = " ".join(df[df['sentiment'] == 'Positive']['content'].tolist())
-# #                 generate_wordcloud(pos_text, "Positive Trigger Words")
-# #             with tab3:
-# #                 score_filter = st.multiselect("筛选星级:", options=[5,4,3,2,1], default=[1,2])
-# #                 filtered_df = df[df['score'].isin(score_filter)]
-# #                 st.dataframe(filtered_df[['at', 'score', 'content', 'reviewCreatedVersion']], use_container_width=True)
-
-# # else:
-# #     st.info("👋 请在侧边栏上传从 Google Play 爬取的 CSV 数据开始分析。")
-
-
-# import streamlit as st
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# from wordcloud import WordCloud
-# import re
-# import google.generativeai as genai
-# import io
-
-
-
-
-# # cd ~/Desktop/Bubble_VOC_Project
-# # streamlit run APP.py
-# # ==========================================
-# # 1. 配置区域 (需要你在本地配置)
-# # ==========================================
-# # st.set_page_config(page_title="Bubble Shooter VOC Dashboard", layout="wide")
-
-# # 请在此处填写你在 Google AI Studio 获取的 API Key
-# # 实际项目中应使用环境变量保存，这里为了 Demo 演示直接写出
-# YOUR_API_KEY = st.secrets["GEMINI_API_KEY"]
-
-# # ==========================================
-# # 2. 功能函数
-# # ==========================================
-
-# # 2.1 初始化 AI 模型 (Gemini)
-# def init_gemini(api_key):
-#     try:
-#         genai.configure(api_key=api_key)
-#         model = genai.GenerativeModel('gemini-2.5-flash')
-#         return model
-#     except Exception as e:
-#         st.error(f"Gemini 初始化失败，请检查 API Key: {e}")
-#         return None
-
-# # 2.2 数据清洗与处理
-# @st.cache_data # 缓存数据，避免每次刷新网页都重新运行
-# def load_and_clean_data(file_obj):
-#     # 读取你上传的 CSV 文件
-#     try:
-#         df = pd.read_csv(file_obj)
-#         df['content'] = df['content'].fillna('')
-#         df['at'] = pd.to_datetime(df['at'])
-#         # 简单的情感打标：4-5星为正向，1-2星为负向
-#         df['sentiment'] = df['score'].map({5: 'Positive', 4: 'Positive', 3: 'Neutral', 2: 'Negative', 1: 'Negative'})
-#         return df
-#     except Exception as e:
-#         st.error(f"数据读取失败: {e}")
-#         return None
-
-# # 2.3 生成词云图
-# def generate_wordcloud(text, title):
-#     if not text:
-#         st.warning(f"{title} 没有足够的文本生成词云。")
-#         return
-    
-#     # 简单的英文停用词
-#     stop_words = set(['the', 'and', 'to', 'i', 'a', 'it', 'is', 'of', 'this', 'you', 'for', 'in', 'that', 'game', 'but', 'my', 'play', 'so'])
-    
-#     # 清洗文本
-#     clean_text = re.sub(r'[^a-z\s]', '', text.lower())
-    
-#     wordcloud = WordCloud(width=800, height=400, background_color='white', stopwords=stop_words, colormap='Dark2').generate(clean_text)
-    
-#     # 使用 Matplotlib 显示
-#     fig, ax = plt.figure(figsize=(10, 5)), plt.gca()
-#     ax.imshow(wordcloud, interpolation='bilinear')
-#     ax.axis('off')
-#     ax.set_title(title, fontsize=20)
-#     st.pyplot(fig)
-
-# # 2.4 调用 AI (Gemini) 进行评论总结
-# def get_ai_summary(model, reviews_list):
-#     if not model:
-#         return "Gemini 未初始化。"
-#     if not reviews_list:
-#         return "没有足够的评论供 AI 分析。"
-
-#     # 将差评论合并为一个长文本（限制长度避免 token 超限，Demo 只取前 50 条）
-#     text_to_analyze = "\n\n".join(reviews_list[:50])
-    
-#     prompt = f"""
-#     You are an expert Game Data Analyst and VOC (Voice of Customer) specialist. 
-#     Below is a list of negative user reviews (1-2 stars) for our mobile game 'Bubble Shooter'.
-    
-#     Analyze these reviews and provide a summary for the development team in Chinese (中文).
-#     Your output must include:
-#     1. A bulleted list of the Top 3 main complaints from players.
-#     2. For each complaint, provide one concrete example review from the text.
-    
-#     User Reviews:
-#     \"\"\"
-#     {text_to_analyze}
-#     \"\"\"
-#     """
-    
-#     try:
-#         response = model.generate_content(prompt)
-#         return response.text
-#     except Exception as e:
-#         return f"AI 分析时出错: {e}"
-
-# # ==========================================
-# # 3. 网页主界面 (Main App)
-# # ==========================================
-# st.title("🏹 VOC玩家声音智能分析系统")
-# st.markdown("---")
-# YOUR_GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-# # 初始化 Gemini 模型
-# gemini_model = init_gemini(YOUR_GEMINI_API_KEY)
-
-# # 3.1 侧边栏：文件上传
-# st.sidebar.header("数据导入")
-# uploaded_file = st.sidebar.file_uploader("上传爬取的 CSV 评论数据", type=["csv"])
-
-# if uploaded_file is not None:
-#     # 加载数据
-#     with st.spinner('正在处理数据...'):
-#         df = load_and_clean_data(uploaded_file)
-    
-#     if df is not None:
-#         # ==========================================
-#         # 模块 1: 核心评级指标 (Descriptive)
-#         # ==========================================
-#         st.header("1. 玩家评分概览")
-#         col1, col2, col3 = st.columns([1, 1, 2])
-        
-#         # 指标卡
-#         with col1:
-#             avg_score = df['score'].mean()
-#             st.metric(label="平均得分", value=f"{avg_score:.2f} / 5")
-#         with col2:
-#             total_reviews = len(df)
-#             st.metric(label="总评论数", value=total_reviews)
-            
-#         # 评分占比图
-#         with col3:
-#             score_counts = df['score'].value_counts().sort_index(ascending=False)
-#             st.bar_chart(score_counts)
-        
-#         st.markdown("---")
-        
-#         # ==========================================
-#         # 模块 2: 核心文本洞察 (Descriptive)
-#         # ==========================================
-#         st.header("2. 评论文本视觉探索")
-        
-#         tab1, tab2 = st.tabs(["🔴 负面评论词云 (1-2星)", "🟢 正面评论词云 (4-5星)"])
-        
-#         with tab1:
-#             neg_text = " ".join(df[df['sentiment'] == 'Negative']['content'].tolist())
-#             generate_wordcloud(neg_text, "Negative Reviews Keywords")
-            
-#         with tab2:
-#             pos_text = " ".join(df[df['sentiment'] == 'Positive']['content'].tolist())
-#             generate_wordcloud(pos_text, "Positive Reviews Keywords")
-            
-#         st.markdown("---")
-
-#         # ==========================================
-#         # 模块 3: AI 智能差评归因 (Diagnostic - AI 落地)
-#         # ==========================================
-#         st.header("3. ✨ AI 智能差评归因 (今日 Top 3 痛点)")
-        
-#         # 准备数据供 AI 分析
-#         negative_reviews = df[df['sentiment'] == 'Negative']['content'].tolist()
-        
-#         # 增加一个按钮触发 AI 分析，避免打开网页就自动调用扣费
-#         if st.button("运行 AI 智能总结"):
-#             if YOUR_GEMINI_API_KEY == "你的_GEMINI_API_KEY_粘贴在这里":
-#                 st.warning("请先在 App.py 代码中填写你的 Gemini API Key。")
-#             else:
-#                 with st.spinner('Gemini 正在冥想并分析几百条差评...'):
-#                     ai_summary = get_ai_summary(gemini_model, negative_reviews)
-                    
-#                     # 显示 AI 分析结果
-#                     st.info("AI 总结报告如下：")
-#                     st.markdown(ai_summary)
-                    
-#         # ==========================================
-#         # 模块 4: 数据详情与筛选 (Exploratory)
-#         # ==========================================
-#         st.markdown("---")
-#         st.header("4. 数据详情预览")
-#         # 允许玩家筛选评分
-#         score_filter = st.multiselect("筛选星级:", options=[5,4,3,2,1], default=[1,2])
-#         filtered_df = df[df['score'].isin(score_filter)]
-#         st.dataframe(filtered_df[['at', 'score', 'content', 'reviewCreatedVersion', 'sourceCountry']].head(100))
-
-# else:
-#     # 未上传文件时的欢迎界面
-#     st.info("👋 请在侧边栏上传从 Google Play 爬取的 Bubble Shooter CSV 评论数据开始分析。")
-#     st.image("https://global.discourse-cdn.com/business7/uploads/streamlit/original/3X/8/0/805e3f421115f5c3897103d15b1356e9c9160565.png") # 这里放置一张 Streamlit 介绍图
+                # 2. 原始明细表
+                st.markdown('<div class="section-title">🔍 玩家原声定位明细</div>', unsafe_allow_html=True)
+                display_df = filtered_df[['at', 'score', 'business_tag', 'content', 'reviewCreatedVersion']].sort_values(by='at', ascending=False)
+                
+                st.dataframe(
+                    display_df, 
+                    use_container_width=True,
+                    height=500, 
+                    hide_index=True, 
+                    column_config={
+                        "at": st.column_config.DatetimeColumn("评论时间", format="YYYY-MM-DD HH:mm"),
+                        "score": st.column_config.NumberColumn("评分", format="%d ⭐"),
+                        "business_tag": st.column_config.TextColumn("业务归类"),
+                        "content": st.column_config.TextColumn("玩家原始评论", width="large"),
+                        "reviewCreatedVersion": st.column_config.TextColumn("发生版本")
+                    }
+                )
+            else:
+                st.warning("当前筛选条件下无数据。")
