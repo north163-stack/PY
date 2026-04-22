@@ -171,48 +171,7 @@ else:
 
             st.divider() # 分割线
 
-            # ---------------- 模块 2: 动态 AI 商业诊断 ----------------
-            st.markdown('<div class="section-title">🤖 AI 动态商业诊断</div>', unsafe_allow_html=True)
-            
-            data_fingerprint = f"{len(filtered_df)}_{filtered_df['at'].max()}"
-            
-            btn_c1, btn_c2, _ = st.columns([2, 2, 6])
-            with btn_c1:
-                generate_clicked = st.button("⚡ 立即生成/刷新 AI 报告", type="primary", use_container_width=True)
-            with btn_c2:
-                if st.button("🗑️ 清除云端缓存", use_container_width=True):
-                    st.cache_data.clear()
-                    st.rerun()
-                    
-            if "ai_report_display" not in st.session_state:
-                st.session_state.ai_report_display = None
-
-            if generate_clicked:
-                if not YOUR_GEMINI_API_KEY:
-                    st.error("未配置 API Key，无法呼叫 AI 大模型。")
-                else:
-                    with st.spinner('AI 正在深度研判当前大盘数据... (若条件不变将秒读缓存)'):
-                        report_content = generate_cached_report(gemini_model, data_fingerprint, filtered_df)
-                        
-                        if "出错" not in report_content and "429 Error" not in report_content:
-                            st.session_state.ai_report_display = report_content
-                            st.success("✅ 报告就绪！已部署至云端缓存。")
-                        else:
-                            st.error(report_content)
-
-            if st.session_state.ai_report_display:
-                st.markdown(
-                    f"<div style='background-color: #f8f9fa; padding: 30px; border-radius: 12px; border: 1px solid #e9ecef; box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>"
-                    f"{st.session_state.ai_report_display}"
-                    f"</div>", 
-                    unsafe_allow_html=True
-                )
-            else:
-                st.info("👆 点击上方按钮，AI 将根据当前数据盘面为您生成深度高管汇报纪要。")
-
-            st.divider()
-
-            # ---------------- 模块 3: 业务大盘与异常监测 (图表区) ----------------
+            # ---------------- 模块 2: 业务大盘与异常监测 (图表区) ----------------
             st.markdown('<div class="section-title">📊 业务大盘与异常监测</div>', unsafe_allow_html=True)
             
             # 周度趋势折线图
@@ -258,6 +217,47 @@ else:
                     st.plotly_chart(fig_box, use_container_width=True)
                 else:
                     st.info("单版本数据量不足，无法绘制分布箱线图。")
+
+            st.divider() # 分割线
+
+            # ---------------- 模块 3: 动态 AI 商业诊断 ----------------
+            st.markdown('<div class="section-title">🤖 AI 动态商业诊断</div>', unsafe_allow_html=True)
+            
+            data_fingerprint = f"{len(filtered_df)}_{filtered_df['at'].max()}"
+            
+            btn_c1, btn_c2, _ = st.columns([2, 2, 6])
+            with btn_c1:
+                generate_clicked = st.button("⚡ 立即生成/刷新 AI 报告", type="primary", use_container_width=True)
+            with btn_c2:
+                if st.button("🗑️ 清除云端缓存", use_container_width=True):
+                    st.cache_data.clear()
+                    st.rerun()
+                    
+            if "ai_report_display" not in st.session_state:
+                st.session_state.ai_report_display = None
+
+            if generate_clicked:
+                if not YOUR_GEMINI_API_KEY:
+                    st.error("未配置 API Key，无法呼叫 AI 大模型。")
+                else:
+                    with st.spinner('AI 正在深度研判当前大盘数据... (若条件不变将秒读缓存)'):
+                        report_content = generate_cached_report(gemini_model, data_fingerprint, filtered_df)
+                        
+                        if "出错" not in report_content and "429 Error" not in report_content:
+                            st.session_state.ai_report_display = report_content
+                            st.success("✅ 报告就绪！已部署至云端缓存。")
+                        else:
+                            st.error(report_content)
+
+            if st.session_state.ai_report_display:
+                st.markdown(
+                    f"<div style='background-color: #f8f9fa; padding: 30px; border-radius: 12px; border: 1px solid #e9ecef; box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>"
+                    f"{st.session_state.ai_report_display}"
+                    f"</div>", 
+                    unsafe_allow_html=True
+                )
+            else:
+                st.info("👆 点击上方按钮，AI 将综合上方的业务图表盘面为您生成深度高管汇报纪要。")
 
             st.divider()
 
@@ -308,7 +308,6 @@ else:
                     "reviewCreatedVersion": st.column_config.TextColumn("发生版本")
                 }
             )
-
 
 
 
