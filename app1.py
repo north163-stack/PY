@@ -77,7 +77,7 @@ def get_zeus_style_insight(model, df):
     text_to_analyze = "\n".join(sample_reviews)
     
     prompt = f"""
-    作为传音高级游戏数据分析师，请阅读以下抽样的真实玩家评论数据，生成一份结构化商业诊断报告。
+    作为高级游戏数据分析师，请阅读以下抽样的真实玩家评论数据，生成一份结构化商业诊断报告。
     你必须严格使用以下 Markdown 结构和表情符号进行输出，保持专业、客观，避免空话：
 
     ### 🤖 AI 深度洞察
@@ -114,6 +114,7 @@ def generate_cached_report(_model, data_fingerprint, df):
 # ==========================================
 # 3. 网页主程序与全局控制台
 # ==========================================
+# 自动读取环境变量或 secrets 中的 API Key
 YOUR_GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
 gemini_model = init_gemini(YOUR_GEMINI_API_KEY)
 DATA_FILENAME = "linkdesks.pop.bubblegames.bubbleshooter_all_reviews.csv"
@@ -219,10 +220,12 @@ else:
                 avg_score=('score', 'mean'),
                 review_count=('score', 'count')
             ).reset_index()
-            fig_trend = px.line(weekly_trend, x='week', y='avg_score', text=weekly_trend['avg_score'].round(2),
-                                title="自然周平均星级走势 (结合图表寻找口碑拐点)", markers=True)
-            fig_trend.update_traces(textposition="top center", line_color='#1f77b4')
-            st.plotly_chart(fig_trend, use_container_width=True)
+            
+            if not weekly_trend.empty:
+                fig_trend = px.line(weekly_trend, x='week', y='avg_score', text=weekly_trend['avg_score'].round(2),
+                                    title="自然周平均星级走势 (结合图表寻找口碑拐点)", markers=True)
+                fig_trend.update_traces(textposition="top center", line_color='#1f77b4')
+                st.plotly_chart(fig_trend, use_container_width=True)
 
             # 树形图与箱线图并列
             col_tree, col_box = st.columns(2)
