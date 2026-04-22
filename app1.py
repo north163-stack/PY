@@ -16,8 +16,10 @@ st.set_page_config(page_title="Bubble Shooter 战情大屏", page_icon="📱", l
 st.markdown("""
 <style>
     .report-header { font-size: 2.8em; font-weight: 800; border-bottom: 4px solid #1f77b4; padding-bottom: 10px; margin-bottom: 30px;}
-    .section-title { font-size: 1.8em; font-weight: 700; color: #2c3e50; margin-top: 40px; margin-bottom: 20px; border-left: 5px solid #e74c3c; padding-left: 15px;}
-    div[data-testid="metric-container"] { background-color: #ffffff; border-radius: 8px; padding: 20px; border-top: 4px solid #1f77b4; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
+    /* 使用 var(--text-color) 替代原先写死的深色字体，完美适配深浅色模式 */
+    .section-title { font-size: 1.8em; font-weight: 700; color: var(--text-color); margin-top: 40px; margin-bottom: 20px; border-left: 5px solid #e74c3c; padding-left: 15px;}
+    /* 使用 var(--secondary-background-color) 替代原先写死的 #ffffff */
+    div[data-testid="metric-container"] { background-color: var(--secondary-background-color); border-radius: 8px; padding: 20px; border-top: 4px solid #1f77b4; box-shadow: 0 4px 6px rgba(0,0,0,0.05);}
 </style>
 """, unsafe_allow_html=True)
 
@@ -68,6 +70,7 @@ def load_and_clean_data(file_path):
         return None
 
 def get_zeus_style_insight(model, df):
+    # 【已修复】：采样越界报错修复
     valid_reviews = df[df['content'].str.len() > 20]
     sample_size = min(80, len(valid_reviews))
     if sample_size == 0:
@@ -250,8 +253,9 @@ else:
                             st.error(report_content)
 
             if st.session_state.ai_report_display:
+                # 【已修复】：使用 Streamlit 动态 CSS 变量适配深浅色模式
                 st.markdown(
-                    f"<div style='background-color: #f8f9fa; padding: 30px; border-radius: 12px; border: 1px solid #e9ecef; box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>"
+                    f"<div style='background-color: var(--secondary-background-color); color: var(--text-color); padding: 30px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>"
                     f"{st.session_state.ai_report_display}"
                     f"</div>", 
                     unsafe_allow_html=True
@@ -308,7 +312,6 @@ else:
                     "reviewCreatedVersion": st.column_config.TextColumn("发生版本")
                 }
             )
-
 
 
 # import streamlit as st
